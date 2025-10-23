@@ -1,4 +1,4 @@
-package com.project.eazyschool;
+package com.project.eazyschool.service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

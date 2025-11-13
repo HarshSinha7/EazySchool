@@ -3,11 +3,15 @@ package com.project.eazyschool.controller;
 import com.project.eazyschool.model.Holiday;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+//import static com.sun.beans.introspect.PropertyInfo.Name.required;
 
 @Controller
 public class HolidaysController {
@@ -22,19 +26,37 @@ public class HolidaysController {
             new Holiday("Sep 5", "Labor Day", Holiday.Type.FEDERAL),
             new Holiday("Nov 11", "Veterans Day", Holiday.Type.FEDERAL)
     );
-    @RequestMapping(value="/holidays")
-    public void holidayController(Model model){
-        List<Holiday> federal=new ArrayList<>();
-        List<Holiday> festival=new ArrayList<>();
+    @RequestMapping(value="/holidays/{display}")
+    public String holidayController(Model model, @PathVariable String display){
+
+        List<Holiday> federalList=new ArrayList<>();
+        List<Holiday> festivalList=new ArrayList<>();
         for(Holiday holiday:holidays){
             if(holiday.getType()==Holiday.Type.FEDERAL){
-                federal.add(holiday);
+                federalList.add(holiday);
             }
             else{
-                festival.add(holiday);
+                festivalList.add(holiday);
             }
         }
-        model.addAttribute("FEDERAL", federal);
-        model.addAttribute("FESTIVAL", festival);
+        if(display!=null && display.equals("all")){
+            model.addAttribute("federal",true);
+            model.addAttribute("festival",true);
+        }
+        else if(display!=null && display.equals("federal")){
+            model.addAttribute("federal",true);
+            model.addAttribute("festival",false);
+        }
+        else if(display!=null && display.equals("festival")){
+            model.addAttribute("federal",false);
+            model.addAttribute("festival",true);
+        }
+        else{
+            model.addAttribute("federal",false);
+            model.addAttribute("festival",false);
+        }
+        model.addAttribute("FEDERAL", federalList);
+        model.addAttribute("FESTIVAL", festivalList);
+        return "holidays";
     }
 }

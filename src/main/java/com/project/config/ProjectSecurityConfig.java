@@ -17,8 +17,12 @@ public class ProjectSecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
-        http.csrf((csrf) -> csrf.ignoringRequestMatchers("/saveMsg").ignoringRequestMatchers(PathRequest.toH2Console()))
-                .authorizeHttpRequests((requests) -> requests.requestMatchers("/dashboard").authenticated()
+        http
+                // CSRF ENABLED, except for /saveMsg (correct syntax)
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/saveMsg"))
+
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/dashboard").authenticated()
                         .requestMatchers("/displayMessages").hasRole("ADMIN")
                         .requestMatchers("/closeMsg/**").hasRole("ADMIN")
                         .requestMatchers("/", "/home").permitAll()
@@ -30,18 +34,26 @@ public class ProjectSecurityConfig {
                         .requestMatchers("/assets/**").permitAll()
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/logout").permitAll()
-                        .requestMatchers(PathRequest.toH2Console()).permitAll())
-                .formLogin(loginConfigurer -> loginConfigurer.loginPage("/login")
-                        .defaultSuccessUrl("/dashboard").failureUrl("/login?error=true").permitAll())
-                .logout(logoutConfigurer -> logoutConfigurer.logoutSuccessUrl("/login?logout=true")
-                        .invalidateHttpSession(true).permitAll())
+                        .anyRequest().authenticated()
+                )
+
+                .formLogin(login -> login
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/dashboard")
+                        .failureUrl("/login?error=true")
+                        .permitAll()
+                )
+
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .permitAll()
+                )
+
                 .httpBasic(Customizer.withDefaults());
 
-        http.headers(headersConfigurer -> headersConfigurer
-                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
-
         return http.build();
-
     }
 
     @Bean
@@ -52,12 +64,13 @@ public class ProjectSecurityConfig {
                 .password("12345")
                 .roles("USER")
                 .build();
+
         UserDetails admin = User.withDefaultPasswordEncoder()
                 .username("admin")
                 .password("54321")
                 .roles("ADMIN")
                 .build();
+
         return new InMemoryUserDetailsManager(user, admin);
     }
-
 }

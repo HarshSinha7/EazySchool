@@ -21,11 +21,6 @@ public class ContactService {
     @Autowired
     private ContactRepository contactRepository;
 
-    /**
-     * Save Contact Details into DB
-     * @param contact
-     * @return boolean
-     */
     public boolean saveMessageDetails(Contact contact){
         boolean isSaved = false;
         contact.setStatus(EazySchoolConstants.OPEN);

@@ -2,16 +2,20 @@ package com.project.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "holidays")
 @Data
-public class Holiday {
+@NoArgsConstructor
+public class Holiday extends BaseEntity{
     @Id
-    private final String day;
-    private final String reason;
+    private String day;
+    private String reason;
     @Enumerated(EnumType.STRING)
-    private final Type type;
+    private Type type;
     public enum Type {
         FESTIVAL, FEDERAL
     }
